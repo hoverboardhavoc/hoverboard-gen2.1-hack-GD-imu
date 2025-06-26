@@ -239,7 +239,7 @@ void usart_Tx_DMA_config(uint32_t selUSART, uint8_t *pData, uint32_t dSize) {
     dma_init_struct.periph_inc          = DMA_PERIPH_INCREASE_DISABLE;
     dma_init_struct.periph_width        = DMA_PERIPHERAL_WIDTH_8BIT;
     dma_init_struct.priority            = DMA_PRIORITY_ULTRA_HIGH;          // Priorities: *_LOW, *_MEDIUM, *_HIGH, *_ULTRA_HIGH,
-    dma_init(USART_TX_DMA_CH[USART_ID], dma_init_struct);
+    dma_init(USART_TX_DMA_CH[USART_ID], &dma_init_struct);
 
     /* configure DMA mode */
     dma_circulation_disable(USART_TX_DMA_CH[USART_ID]);
@@ -285,7 +285,7 @@ void usart_Rx_DMA_config(uint32_t selUSART, uint8_t *pData, uint32_t dSize) {
     dma_init_struct.periph_inc          = DMA_PERIPH_INCREASE_DISABLE;
     dma_init_struct.periph_width        = DMA_PERIPHERAL_WIDTH_8BIT;
     dma_init_struct.priority            = DMA_PRIORITY_ULTRA_HIGH;          // Priorities: *_LOW, *_MEDIUM, *_HIGH, *_ULTRA_HIGH,
-    dma_init(USART_RX_DMA_CH[USART_ID], dma_init_struct);
+    dma_init(USART_RX_DMA_CH[USART_ID], &dma_init_struct);
 
     /* configure DMA mode */
     dma_circulation_enable(USART_RX_DMA_CH[USART_ID]); 	// dma_circulation_disable(USART_RX_DMA[USART_ID]);
@@ -302,6 +302,7 @@ void usart_Rx_DMA_config(uint32_t selUSART, uint8_t *pData, uint32_t dSize) {
 
 }
 
+#define CTL1_ADDR  ((uint32_t)MPU_I2C + 0x04U)
 
 void i2c_config(void) {
 
@@ -314,6 +315,10 @@ void i2c_config(void) {
     i2c_enable(MPU_I2C);
     /* enable acknowledge */
     i2c_ack_config(MPU_I2C, I2C_ACK_ENABLE);
+
+    i2c_interrupt_enable(MPU_I2C, I2C_INT_ERR);   // ITERREN @ bit 8
+    i2c_interrupt_enable(MPU_I2C, I2C_INT_EV);    // ITEVTEN @ bit 9
+    i2c_interrupt_enable(MPU_I2C, I2C_INT_BUF);   // ITBUFEN @ bit 10
     
     #ifdef AUX45_USE_I2C
         /* I2C clock configure */
@@ -326,7 +331,6 @@ void i2c_config(void) {
         /* enable acknowledge */
         i2c_ack_config(AUX_I2C, I2C_ACK_ENABLE);
     #endif
-
 }
 
 
